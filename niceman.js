@@ -83,3 +83,8 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     startEmailWatcher();
 });
+
+const path = require('path');
+
+// Frontend static files serve karne ke liye
+app.use(express.static(path.join(__dirname)));

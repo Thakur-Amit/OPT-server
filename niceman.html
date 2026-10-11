@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live OTP Viewer | BAD BARRY</title>
+    <!-- Tailwind CSS CDN for modern sleek styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between p-6">
+
+    <!-- Top Header -->
+    <header class="max-w-md mx-auto w-full flex justify-between items-center py-4 border-b border-slate-800">
+        <h1 class="text-sm font-bold tracking-widest uppercase text-slate-400">Live OTP Matrix</h1>
+        <div class="flex items-center space-x-2">
+            <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="statusText" class="text-xs text-slate-400 font-mono">Sync Active</span>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Card -->
+    <main class="max-w-md mx-auto w-full my-auto space-y-6">
+        
+        <!-- Latest OTP Card -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-500 to-indigo-500"></div>
+            
+            <div class="flex justify-between items-center mb-4">
+                <span id="serviceName" class="text-xs font-semibold tracking-wider text-sky-400 uppercase bg-sky-950/50 px-3 py-1 rounded-full border border-sky-800/50">Connecting...</span>
+                <span id="otpTime" class="text-xs text-slate-500 font-mono">--:--:--</span>
+            </div>
+
+            <!-- OTP Code Display -->
+            <div class="text-center my-6">
+                <div id="otpCode" class="text-5xl font-extrabold font-mono tracking-widest text-white selection:bg-sky-500">------</div>
+            </div>
+
+            <!-- Copy Button -->
+            <button onclick="copyOtp()" class="w-full mt-2 bg-sky-600 hover:bg-sky-500 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-sky-900/30 flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                <span id="copyText">Copy Code</span>
+            </button>
+        </div>
+
+        <!-- Info Box -->
+        <div class="text-center text-xs text-slate-500 font-mono">
+            Auto-refreshing every 3 seconds from Render backend.
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-md mx-auto w-full text-center text-xs text-slate-600 border-t border-slate-900 pt-4">
+        BAD BARRY Systems &copy; 2026
+    </footer>
+
+    <!-- Frontend Scripting Logic -->
+    <script>
+        // Yahan apna Render ka backend URL daalein (jo Render deploy hone ke baad mila tha)
+        const BACKEND_URL = 'https://apka-render-app-url.onrender.com';
+
+        async function fetchLatestOtp() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/latest-otp`);
+                if (!response.ok) throw new Error('Network error');
+                
+                const data = await response.json();
+                
+                document.getElementById('serviceName').innerText = data.service || 'Unknown Service';
+                document.getElementById('otpCode').innerText = data.code || '------';
+                document.getElementById('otpTime').innerText = data.time || '--:--';
+
+                // Status Indicator -> Green
+                document.getElementById('statusDot').className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                document.getElementById('statusText').innerText = "Sync Active";
+
+            } catch (err) {
+                console.error('Fetch failed:', err);
+                // Status Indicator -> Red (Disconnected)
+                document.getElementById('statusDot').className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                document.getElementById('statusText').innerText = "Disconnected";
+            }
+        }
+
+        // Copy Code to Clipboard Function
+        function copyOtp() {
+            const codeText = document.getElementById('otpCode').innerText;
+            if (codeText === '------') return;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const copyBtn = document.getElementById('copyText');
+                copyBtn.innerText = 'Copied to Clipboard!';
+                setTimeout(() => {
+                    copyBtn.innerText = 'Copy Code';
+                }, 2000);
+            });
+        }
+
+        // Poll every 3 seconds
+        setInterval(fetchLatestOtp, 3000);
+        fetchLatestOtp(); // Initial immediate call
+    </script>
+</body>
+</html>
