@@ -1,0 +1,18 @@
+{
+  "name": "opt-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "niceman.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "imapflow": "^2.4.0",
+    "mailparser": "^3.9.38"
+  }
+}
